@@ -8,6 +8,12 @@ export const authService = {
         if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
             console.log('--- MOCK API: login ---', credentials);
             await mockApiDelay();
+
+            // Validate mock credentials
+            if (credentials.email !== 'anand@uptiq.ai' || credentials.password !== 'Uptiq@2025') {
+                throw new Error('Invalid email or password');
+            }
+
             return mockAuthResponse;
         }
         const response = await api.post('/auth/login', credentials);

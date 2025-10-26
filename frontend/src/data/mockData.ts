@@ -3,8 +3,8 @@ import type { AuthResponse, User } from '@/types/user';
 
 export const mockUser: User = {
     id: 1,
-    email: 'john.doe@example.com',
-    name: 'John Doe',
+    email: 'anand@uptiq.ai',
+    name: 'Anand Kumar',
     role: 'USER',
     isEmailVerified: true,
     createdAt: new Date().toISOString(),
