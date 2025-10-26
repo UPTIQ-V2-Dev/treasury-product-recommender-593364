@@ -65,3 +65,34 @@ export interface AnalysisResult {
     averageBalance: number;
     cashFlowVolatility: number;
 }
+
+export interface CreateUploadInput {
+    file: File;
+}
+
+export interface UploadProgress {
+    loaded: number;
+    total: number;
+    percentage: number;
+}
+
+export interface SupportedFormat {
+    extension: string;
+    mimeType: string;
+    description: string;
+}
+
+export interface AnalysisStatus {
+    id: string;
+    status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+    progress: number;
+    currentStep?: string;
+    error?: string;
+}
+
+export interface ProcessingStep {
+    id: string;
+    name: string;
+    status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+    description: string;
+}

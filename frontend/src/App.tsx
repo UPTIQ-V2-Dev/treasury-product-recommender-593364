@@ -3,6 +3,9 @@ import { LoginPage } from '@/pages/LoginPage';
 import { SignupPage } from '@/pages/SignupPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { ComingSoonPage } from '@/pages/ComingSoonPage';
+import { StatementUploadPage } from '@/pages/StatementUploadPage';
+import { AnalysisProcessingPage } from '@/pages/AnalysisProcessingPage';
+import { RecommendationsPage } from '@/pages/RecommendationsPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AppLayout } from '@/components/layout/AppLayout';
 
@@ -40,20 +43,39 @@ export const App = () => {
                 }
             />
 
-            {/* Coming soon pages */}
+            {/* Treasury Features */}
             <Route
                 path='/dashboard/upload'
                 element={
                     <ProtectedRoute>
                         <AppLayout>
-                            <ComingSoonPage
-                                title='Upload Statement'
-                                description='Bank statement upload and analysis feature is coming soon.'
-                            />
+                            <StatementUploadPage />
                         </AppLayout>
                     </ProtectedRoute>
                 }
             />
+            <Route
+                path='/dashboard/analysis/:id'
+                element={
+                    <ProtectedRoute>
+                        <AppLayout>
+                            <AnalysisProcessingPage />
+                        </AppLayout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path='/dashboard/recommendations/:id'
+                element={
+                    <ProtectedRoute>
+                        <AppLayout>
+                            <RecommendationsPage />
+                        </AppLayout>
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* Coming soon pages */}
             <Route
                 path='/dashboard/history'
                 element={
