@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { AgentLoading } from '@/components/ui/agent-loading';
 import { treasuryService } from '@/services/treasury';
 import { cn } from '@/lib/utils';
+import type { BankStatement } from '@/types/treasury';
 
 export const StatementUploadPage = () => {
     const navigate = useNavigate();
@@ -16,6 +18,8 @@ export const StatementUploadPage = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [dragActive, setDragActive] = useState(false);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [uploadedStatement, setUploadedStatement] = useState<BankStatement | null>(null);
 
     // Get supported formats
     const { data: supportedFormats = [] } = useQuery({
@@ -25,11 +29,38 @@ export const StatementUploadPage = () => {
 
     // Upload mutation
     const uploadMutation = useMutation({
-        mutationFn: (file: File) => treasuryService.uploadStatement({ file }, setUploadProgress),
+        mutationFn: async (file: File) => {
+            // First upload the file
+            const uploadResult = await treasuryService.uploadStatement({ file }, setUploadProgress);
+            setUploadedStatement(uploadResult);
+            setIsAnalyzing(true);
+
+            // Then perform agent analysis
+            const documents = uploadResult.signedUrl
+                ? [
+                      {
+                          signedUrl: uploadResult.signedUrl,
+                          fileName: uploadResult.filename,
+                          mimeType: file.type
+                      }
+                  ]
+                : undefined;
+
+            const analysisResult = await treasuryService.getAnalysisResult(uploadResult.id, uploadResult, documents);
+
+            return { uploadResult, analysisResult };
+        },
         onSuccess: result => {
-            navigate(`/dashboard/analysis/${result.id}`, {
-                state: { bankStatement: result }
+            setIsAnalyzing(false);
+            navigate(`/dashboard/recommendations/${result.uploadResult.id}`, {
+                state: {
+                    bankStatement: result.uploadResult,
+                    analysisResult: result.analysisResult
+                }
             });
+        },
+        onError: () => {
+            setIsAnalyzing(false);
         }
     });
 
@@ -86,6 +117,62 @@ export const StatementUploadPage = () => {
     const isFileSupported = (file: File) => {
         return supportedFormats.some(format => file.type === format.mimeType || file.name.endsWith(format.extension));
     };
+
+    // Show agent loading when analyzing
+    if (isAnalyzing && uploadedStatement) {
+        return (
+            <div className='space-y-6'>
+                <div className='flex items-center justify-between'>
+                    <div>
+                        <h1 className='text-2xl font-semibold'>Analyzing Your Statement</h1>
+                        <p className='text-muted-foreground mt-1'>
+                            Our AI is processing your bank statement to generate personalized recommendations
+                        </p>
+                    </div>
+                </div>
+
+                <AgentLoading
+                    agentName='Treasury Solution Advisor'
+                    message='Analyzing your financial patterns and generating personalized treasury product recommendations'
+                    estimatedTime='1-2 minutes'
+                />
+
+                {/* Show uploaded statement details during analysis */}
+                <Card className='border-muted'>
+                    <CardHeader>
+                        <CardTitle className='flex items-center gap-2 text-lg'>
+                            <FileText className='h-5 w-5' />
+                            Processing Statement
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-4'>
+                            <div>
+                                <p className='text-sm font-medium'>Filename</p>
+                                <p className='text-sm text-muted-foreground'>{uploadedStatement.filename}</p>
+                            </div>
+                            <div>
+                                <p className='text-sm font-medium'>Bank</p>
+                                <p className='text-sm text-muted-foreground'>
+                                    {uploadedStatement.bankName || 'Detected automatically'}
+                                </p>
+                            </div>
+                            <div>
+                                <p className='text-sm font-medium'>Account Type</p>
+                                <p className='text-sm text-muted-foreground'>
+                                    {uploadedStatement.accountType || 'Detected automatically'}
+                                </p>
+                            </div>
+                            <div>
+                                <p className='text-sm font-medium'>Status</p>
+                                <Badge variant='secondary'>Processing</Badge>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
 
     return (
         <div className='space-y-6'>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
     TrendingUp,
@@ -37,10 +37,15 @@ import type { RiskLevel, Recommendation, FinancialInsight } from '@/types/treasu
 
 export const RecommendationsPage = () => {
     const { id } = useParams<{ id: string }>();
+    const location = useLocation();
 
     const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
     const [contactMessage, setContactMessage] = useState('');
     const [preferredContact, setPreferredContact] = useState<'EMAIL' | 'PHONE'>('EMAIL');
+
+    // Get analysis result from navigation state (from agent call) or fallback to API
+    const analysisResultFromState = location.state?.analysisResult;
+    const bankStatement = location.state?.bankStatement;
 
     const {
         data: analysisResult,
@@ -48,8 +53,18 @@ export const RecommendationsPage = () => {
         error
     } = useQuery({
         queryKey: ['analysis-result', id],
-        queryFn: () => treasuryService.getAnalysisResult(id!),
-        enabled: !!id
+        queryFn: () => {
+            if (analysisResultFromState) {
+                return Promise.resolve(analysisResultFromState);
+            }
+            // Fallback - this shouldn't be needed with the new flow, but kept for safety
+            if (!bankStatement) {
+                throw new Error('Bank statement data not available');
+            }
+            return treasuryService.getAnalysisResult(id!, bankStatement);
+        },
+        enabled: !!id,
+        initialData: analysisResultFromState
     });
 
     const contactMutation = useMutation({

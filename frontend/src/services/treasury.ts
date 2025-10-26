@@ -1,6 +1,6 @@
 import { api } from '@/lib/api';
 import { mockApiDelay } from '@/lib/utils';
-import { mockSupportedFormats, mockBankStatement, mockAnalysisResult, mockAnalysisStatus } from '@/data/mockData';
+import { mockSupportedFormats, mockBankStatement, mockAnalysisStatus } from '@/data/mockData';
 import { emitter } from '@/agentSdk';
 import type {
     BankStatement,
@@ -36,31 +36,6 @@ export const treasuryService = {
                     setTimeout(() => onUploadProgress(i), (i / 100) * 1000);
                 }
             }
-
-            // Trigger agent event for bank statement analysis with mock data
-            try {
-                await emitter.emit({
-                    agentId: '37cff143-f7d2-4204-878f-020620e7697e',
-                    event: 'Bank-Statement-Uploaded',
-                    payload: {
-                        statementId: mockBankStatement.id,
-                        filename: mockBankStatement.filename,
-                        bankName: mockBankStatement.bankName,
-                        accountType: mockBankStatement.accountType,
-                        statementPeriod: mockBankStatement.statementPeriod
-                    },
-                    documents: [
-                        {
-                            signedUrl: mockBankStatement.signedUrl!,
-                            fileName: mockBankStatement.filename,
-                            mimeType: input.file.type
-                        }
-                    ]
-                });
-            } catch (error) {
-                console.error('Failed to trigger treasury analysis agent (mock):', error);
-            }
-
             return mockBankStatement;
         }
 
@@ -79,42 +54,7 @@ export const treasuryService = {
             }
         });
 
-        const bankStatement = response.data;
-
-        // Validate that cloud storage upload was successful and signedUrl is present
-        if (!bankStatement.signedUrl) {
-            console.warn(
-                'Warning: Bank statement uploaded but no signedUrl provided from backend. Agent processing may be limited.'
-            );
-        }
-
-        // Trigger agent event for bank statement analysis
-        try {
-            await emitter.emit({
-                agentId: '37cff143-f7d2-4204-878f-020620e7697e',
-                event: 'Bank-Statement-Uploaded',
-                payload: {
-                    statementId: bankStatement.id,
-                    filename: bankStatement.filename,
-                    bankName: bankStatement.bankName,
-                    accountType: bankStatement.accountType,
-                    statementPeriod: bankStatement.statementPeriod
-                },
-                documents: bankStatement.signedUrl
-                    ? [
-                          {
-                              signedUrl: bankStatement.signedUrl,
-                              fileName: bankStatement.filename,
-                              mimeType: input.file.type
-                          }
-                      ]
-                    : []
-            });
-        } catch (error) {
-            console.error('Failed to trigger treasury analysis agent:', error);
-        }
-
-        return bankStatement;
+        return response.data;
     },
 
     // Get treasury recommendations using agent
@@ -146,88 +86,91 @@ export const treasuryService = {
         return response.data;
     },
 
-    // Get analysis result
-    getAnalysisResult: async (analysisId: string): Promise<AnalysisResult> => {
+    // Get analysis result using agent sync call
+    getAnalysisResult: async (
+        statementId: string,
+        bankStatementData: BankStatement,
+        documents?: Array<{ signedUrl: string; fileName?: string; mimeType?: string }>
+    ): Promise<AnalysisResult> => {
         // Use agent sync event for treasury recommendations
-        try {
-            const agentResponse = await emitter.emit({
-                agentId: '37cff143-f7d2-4204-878f-020620e7697e',
-                event: 'Bank-Statement-Uploaded',
-                payload: {
-                    analysisId,
-                    statementId: analysisId
+        const agentResponse = await emitter.emit({
+            agentId: '37cff143-f7d2-4204-878f-020620e7697e',
+            event: 'Bank-Statement-Uploaded',
+            payload: {
+                statementId,
+                filename: bankStatementData.filename,
+                bankName: bankStatementData.bankName,
+                accountType: bankStatementData.accountType,
+                statementPeriod: bankStatementData.statementPeriod
+            },
+            documents:
+                documents ||
+                (bankStatementData.signedUrl
+                    ? [
+                          {
+                              signedUrl: bankStatementData.signedUrl,
+                              fileName: bankStatementData.filename,
+                              mimeType: 'application/pdf' // Default fallback
+                          }
+                      ]
+                    : [])
+        });
+
+        // Transform agent response to match AnalysisResult type
+        const recommendations = agentResponse.recommendations.map((rec: any) => ({
+            id: rec.id,
+            productId: rec.id,
+            product: {
+                id: rec.id,
+                name: rec.name,
+                category: 'INVESTMENT' as const,
+                description: rec.description,
+                minInvestment: rec.minimumInvestment,
+                expectedReturn: rec.expectedReturn,
+                riskLevel: rec.riskLevel.toUpperCase() as 'LOW' | 'MEDIUM' | 'HIGH',
+                tenure: '12 months', // Default value
+                features: rec.features,
+                eligibility: ['Eligible for corporate clients'],
+                documents: ['Statement of Account', 'KYC Documents']
+            },
+            score: rec.suitabilityScore,
+            reasoning: `Recommended based on your financial profile and ${rec.riskLevel} risk tolerance`,
+            suitabilityAnalysis: `This ${rec.type} product aligns with your financial goals`,
+            riskAssessment: `Risk level: ${rec.riskLevel}`,
+            expectedBenefit: `Expected return: ${rec.expectedReturn}%`,
+            recommendedAmount: rec.minimumInvestment
+        }));
+
+        return {
+            id: statementId,
+            statementId: statementId,
+            analysisDate: new Date().toISOString(),
+            financialInsights: [
+                {
+                    id: 'insight-1',
+                    type: 'CASH_FLOW' as const,
+                    title: 'Cash Flow Analysis',
+                    description: `Average monthly inflow: $${agentResponse.insights.averageMonthlyInflow}`,
+                    value: agentResponse.insights.cashFlowPattern,
+                    trend: 'STABLE' as const,
+                    impact: 'POSITIVE' as const
+                },
+                {
+                    id: 'insight-2',
+                    type: 'BALANCE_TREND' as const,
+                    title: 'Balance Overview',
+                    description: `Total balance: $${agentResponse.insights.totalBalance}`,
+                    value: `$${agentResponse.insights.totalBalance}`,
+                    trend: 'UP' as const,
+                    impact: 'POSITIVE' as const
                 }
-            });
-
-            if (agentResponse) {
-                // Transform agent response to match AnalysisResult type
-                const recommendations = agentResponse.recommendations.map((rec: any) => ({
-                    id: rec.id,
-                    productId: rec.id,
-                    product: {
-                        id: rec.id,
-                        name: rec.name,
-                        category: 'INVESTMENT' as const,
-                        description: rec.description,
-                        minInvestment: rec.minimumInvestment,
-                        expectedReturn: rec.expectedReturn,
-                        riskLevel: rec.riskLevel.toUpperCase() as 'LOW' | 'MEDIUM' | 'HIGH',
-                        tenure: '12 months', // Default value
-                        features: rec.features,
-                        eligibility: ['Eligible for corporate clients'],
-                        documents: ['Statement of Account', 'KYC Documents']
-                    },
-                    score: rec.suitabilityScore,
-                    reasoning: `Recommended based on your financial profile and ${rec.riskLevel} risk tolerance`,
-                    suitabilityAnalysis: `This ${rec.type} product aligns with your financial goals`,
-                    riskAssessment: `Risk level: ${rec.riskLevel}`,
-                    expectedBenefit: `Expected return: ${rec.expectedReturn}%`,
-                    recommendedAmount: rec.minimumInvestment
-                }));
-
-                return {
-                    id: analysisId,
-                    statementId: analysisId,
-                    analysisDate: new Date().toISOString(),
-                    financialInsights: [
-                        {
-                            id: 'insight-1',
-                            type: 'CASH_FLOW' as const,
-                            title: 'Cash Flow Analysis',
-                            description: `Average monthly inflow: $${agentResponse.insights.averageMonthlyInflow}`,
-                            value: agentResponse.insights.cashFlowPattern,
-                            trend: 'STABLE' as const,
-                            impact: 'POSITIVE' as const
-                        },
-                        {
-                            id: 'insight-2',
-                            type: 'BALANCE_TREND' as const,
-                            title: 'Balance Overview',
-                            description: `Total balance: $${agentResponse.insights.totalBalance}`,
-                            value: `$${agentResponse.insights.totalBalance}`,
-                            trend: 'UP' as const,
-                            impact: 'POSITIVE' as const
-                        }
-                    ],
-                    recommendations,
-                    riskProfile: agentResponse.insights.riskProfile.toUpperCase() as 'LOW' | 'MEDIUM' | 'HIGH',
-                    liquidityCoverage: 85, // Default value
-                    averageBalance: agentResponse.insights.totalBalance,
-                    cashFlowVolatility: 15 // Default value
-                };
-            }
-        } catch (error) {
-            console.error('Failed to get analysis result from agent:', error);
-        }
-
-        // Fallback to mock data or API call
-        if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-            console.log('--- MOCK API: getAnalysisResult ---', analysisId);
-            await mockApiDelay();
-            return mockAnalysisResult;
-        }
-        const response = await api.get(`/analysis/${analysisId}`);
-        return response.data;
+            ],
+            recommendations,
+            riskProfile: agentResponse.insights.riskProfile.toUpperCase() as 'LOW' | 'MEDIUM' | 'HIGH',
+            liquidityCoverage: 85, // Default value
+            averageBalance: agentResponse.insights.totalBalance,
+            cashFlowVolatility: 15 // Default value
+        };
     },
 
     // Retry failed analysis
