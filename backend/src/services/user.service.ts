@@ -9,7 +9,16 @@ import httpStatus from 'http-status';
  * @param {Object} userBody
  * @returns {Promise<User>}
  */
-const createUser = async (email: string, password: string, name?: string, role: Role = Role.USER): Promise<User> => {
+const createUser = async (
+    email: string,
+    password: string,
+    name?: string,
+    role: Role = Role.USER,
+    clientType?: string,
+    companyName?: string,
+    phone?: string,
+    agreeToTerms?: boolean
+): Promise<User> => {
     if (await getUserByEmail(email)) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
     }
@@ -18,7 +27,11 @@ const createUser = async (email: string, password: string, name?: string, role: 
             email,
             name,
             password: await encryptPassword(password),
-            role
+            role,
+            clientType,
+            companyName,
+            phone,
+            agreeToTerms
         }
     });
 };
@@ -40,20 +53,39 @@ const queryUsers = async <Key extends keyof User>(
         sortBy?: string;
         sortType?: 'asc' | 'desc';
     },
-    keys: Key[] = ['id', 'email', 'name', 'password', 'role', 'isEmailVerified', 'createdAt', 'updatedAt'] as Key[]
-): Promise<Pick<User, Key>[]> => {
+    keys: Key[] = ['id', 'email', 'name', 'role', 'isEmailVerified', 'createdAt', 'updatedAt'] as Key[]
+): Promise<{
+    results: Pick<User, Key>[];
+    page: number;
+    limit: number;
+    totalPages: number;
+    totalResults: number;
+}> => {
     const page = options.page ?? 1;
     const limit = options.limit ?? 10;
     const sortBy = options.sortBy;
     const sortType = options.sortType ?? 'desc';
-    const users = await prisma.user.findMany({
-        where: filter,
-        select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {}),
-        skip: page * limit,
-        take: limit,
-        orderBy: sortBy ? { [sortBy]: sortType } : undefined
-    });
-    return users as Pick<User, Key>[];
+
+    const [users, totalResults] = await Promise.all([
+        prisma.user.findMany({
+            where: filter,
+            select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {}),
+            skip: (page - 1) * limit,
+            take: limit,
+            orderBy: sortBy ? { [sortBy]: sortType } : undefined
+        }),
+        prisma.user.count({ where: filter })
+    ]);
+
+    const totalPages = Math.ceil(totalResults / limit);
+
+    return {
+        results: users as Pick<User, Key>[],
+        page,
+        limit,
+        totalPages,
+        totalResults
+    };
 };
 
 /**
@@ -64,7 +96,20 @@ const queryUsers = async <Key extends keyof User>(
  */
 const getUserById = async <Key extends keyof User>(
     id: number,
-    keys: Key[] = ['id', 'email', 'name', 'password', 'role', 'isEmailVerified', 'createdAt', 'updatedAt'] as Key[]
+    keys: Key[] = [
+        'id',
+        'email',
+        'name',
+        'password',
+        'role',
+        'isEmailVerified',
+        'clientType',
+        'companyName',
+        'phone',
+        'agreeToTerms',
+        'createdAt',
+        'updatedAt'
+    ] as Key[]
 ): Promise<Pick<User, Key> | null> => {
     return (await prisma.user.findUnique({
         where: { id },
@@ -80,7 +125,20 @@ const getUserById = async <Key extends keyof User>(
  */
 const getUserByEmail = async <Key extends keyof User>(
     email: string,
-    keys: Key[] = ['id', 'email', 'name', 'password', 'role', 'isEmailVerified', 'createdAt', 'updatedAt'] as Key[]
+    keys: Key[] = [
+        'id',
+        'email',
+        'name',
+        'password',
+        'role',
+        'isEmailVerified',
+        'clientType',
+        'companyName',
+        'phone',
+        'agreeToTerms',
+        'createdAt',
+        'updatedAt'
+    ] as Key[]
 ): Promise<Pick<User, Key> | null> => {
     return await (prisma.user.findUnique({
         where: { email },
@@ -97,7 +155,7 @@ const getUserByEmail = async <Key extends keyof User>(
 const updateUserById = async <Key extends keyof User>(
     userId: number,
     updateBody: Prisma.UserUpdateInput,
-    keys: Key[] = ['id', 'email', 'name', 'role'] as Key[]
+    keys: Key[] = ['id', 'email', 'name', 'role', 'isEmailVerified', 'createdAt', 'updatedAt'] as Key[]
 ): Promise<Pick<User, Key> | null> => {
     const user = await getUserById(userId, ['id', 'email', 'name']);
     if (!user) {

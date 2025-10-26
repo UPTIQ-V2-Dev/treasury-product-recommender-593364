@@ -3,8 +3,13 @@ import Joi from 'joi';
 
 const register = {
     body: Joi.object().keys({
+        name: Joi.string().required(),
         email: Joi.string().required().email(),
-        password: Joi.string().required().custom(password)
+        password: Joi.string().required().custom(password),
+        clientType: Joi.string().required(),
+        companyName: Joi.string(),
+        phone: Joi.string(),
+        agreeToTerms: Joi.boolean().required()
     })
 };
 

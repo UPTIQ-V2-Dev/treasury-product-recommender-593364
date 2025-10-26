@@ -43,6 +43,8 @@ export default router;
  *               - name
  *               - email
  *               - password
+ *               - clientType
+ *               - agreeToTerms
  *             properties:
  *               name:
  *                 type: string
@@ -55,10 +57,24 @@ export default router;
  *                 format: password
  *                 minLength: 8
  *                 description: At least one number and one letter
+ *               clientType:
+ *                 type: string
+ *                 description: Type of client
+ *               companyName:
+ *                 type: string
+ *                 description: Company name (optional)
+ *               phone:
+ *                 type: string
+ *                 description: Phone number (optional)
+ *               agreeToTerms:
+ *                 type: boolean
+ *                 description: Must agree to terms and conditions
  *             example:
- *               name: fake name
- *               email: fake@example.com
+ *               name: John Doe
+ *               email: john@example.com
  *               password: password1
+ *               clientType: INDIVIDUAL
+ *               agreeToTerms: true
  *     responses:
  *       "201":
  *         description: Created

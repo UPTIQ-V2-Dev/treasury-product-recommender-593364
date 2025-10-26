@@ -12,9 +12,12 @@ import httpStatus from 'http-status';
  * Login with username and password
  * @param {string} email
  * @param {string} password
- * @returns {Promise<Omit<User, 'password'>>}
+ * @returns {Promise<Omit<User, 'password' | 'clientType' | 'companyName' | 'phone' | 'agreeToTerms'>>}
  */
-const loginUserWithEmailAndPassword = async (email: string, password: string): Promise<Omit<User, 'password'>> => {
+const loginUserWithEmailAndPassword = async (
+    email: string,
+    password: string
+): Promise<Omit<User, 'password' | 'clientType' | 'companyName' | 'phone' | 'agreeToTerms'>> => {
     const user = await userService.getUserByEmail(email, [
         'id',
         'email',
@@ -22,13 +25,17 @@ const loginUserWithEmailAndPassword = async (email: string, password: string): P
         'password',
         'role',
         'isEmailVerified',
+        'clientType',
+        'companyName',
+        'phone',
+        'agreeToTerms',
         'createdAt',
         'updatedAt'
     ]);
     if (!user || !(await isPasswordMatch(password, user.password as string))) {
         throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
     }
-    return exclude(user, ['password']);
+    return exclude(user, ['password', 'clientType', 'companyName', 'phone', 'agreeToTerms']);
 };
 
 /**

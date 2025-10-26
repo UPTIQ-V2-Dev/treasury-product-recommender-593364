@@ -6,9 +6,18 @@ import exclude from '../utils/exclude.ts';
 import httpStatus from 'http-status';
 
 const register = catchAsync(async (req, res) => {
-    const { email, password } = req.body;
-    const user = await userService.createUser(email, password);
-    const userWithoutPassword = exclude(user, ['password', 'createdAt', 'updatedAt']);
+    const { email, password, name, clientType, companyName, phone, agreeToTerms } = req.body;
+    const user = await userService.createUser(
+        email,
+        password,
+        name,
+        undefined,
+        clientType,
+        companyName,
+        phone,
+        agreeToTerms
+    );
+    const userWithoutPassword = exclude(user, ['password', 'clientType', 'companyName', 'phone', 'agreeToTerms']);
     const tokens = await tokenService.generateAuthTokens(user);
     res.status(httpStatus.CREATED).send({ user: userWithoutPassword, tokens });
 });
@@ -20,12 +29,12 @@ const login = catchAsync(async (req, res) => {
     res.send({ user, tokens });
 });
 
-const logout = catchAsyncWithAuth(async (req, res) => {
+const logout = catchAsync(async (req, res) => {
     await authService.logout(req.body.refreshToken);
     res.status(httpStatus.NO_CONTENT).send();
 });
 
-const refreshTokens = catchAsyncWithAuth(async (req, res) => {
+const refreshTokens = catchAsync(async (req, res) => {
     const tokens = await authService.refreshAuth(req.body.refreshToken);
     res.send({ ...tokens });
 });
@@ -41,7 +50,7 @@ const resetPassword = catchAsync(async (req, res) => {
     res.status(httpStatus.NO_CONTENT).send();
 });
 
-const sendVerificationEmail = catchAsync(async (req, res) => {
+const sendVerificationEmail = catchAsyncWithAuth(async (req, res) => {
     const user = req.user as User;
     const verifyEmailToken = await tokenService.generateVerifyEmailToken(user);
     await emailService.sendVerificationEmail(user.email, verifyEmailToken);
