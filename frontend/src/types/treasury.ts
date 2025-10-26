@@ -1,0 +1,67 @@
+export type ClientType = 'INDIVIDUAL' | 'CORPORATE';
+
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'VERY_HIGH';
+
+export type ProductCategory = 'SAVINGS' | 'INVESTMENT' | 'CASH_MANAGEMENT' | 'LENDING' | 'RISK_MANAGEMENT';
+
+export interface TreasuryProduct {
+    id: string;
+    name: string;
+    category: ProductCategory;
+    description: string;
+    minInvestment: number;
+    expectedReturn: number;
+    riskLevel: RiskLevel;
+    tenure: string;
+    features: string[];
+    eligibility: string[];
+    documents: string[];
+}
+
+export interface Recommendation {
+    id: string;
+    productId: string;
+    product: TreasuryProduct;
+    score: number;
+    reasoning: string;
+    suitabilityAnalysis: string;
+    riskAssessment: string;
+    expectedBenefit: string;
+    recommendedAmount?: number;
+}
+
+export interface FinancialInsight {
+    id: string;
+    type: 'CASH_FLOW' | 'BALANCE_TREND' | 'SPENDING_PATTERN' | 'INCOME_SOURCE';
+    title: string;
+    description: string;
+    value: string;
+    trend: 'UP' | 'DOWN' | 'STABLE';
+    impact: 'POSITIVE' | 'NEGATIVE' | 'NEUTRAL';
+}
+
+export interface BankStatement {
+    id: string;
+    filename: string;
+    uploadedAt: string;
+    fileSize: number;
+    bankName?: string;
+    accountType?: string;
+    statementPeriod: {
+        startDate: string;
+        endDate: string;
+    };
+    processingStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+}
+
+export interface AnalysisResult {
+    id: string;
+    statementId: string;
+    analysisDate: string;
+    financialInsights: FinancialInsight[];
+    recommendations: Recommendation[];
+    riskProfile: RiskLevel;
+    liquidityCoverage: number;
+    averageBalance: number;
+    cashFlowVolatility: number;
+}
