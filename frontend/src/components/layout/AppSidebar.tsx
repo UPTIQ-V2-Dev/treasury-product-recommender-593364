@@ -72,11 +72,8 @@ export const AppSidebar = () => {
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton
-                            size='lg'
-                            asChild
-                        >
-                            <Link to='/dashboard'>
+                        <Link to='/dashboard'>
+                            <SidebarMenuButton size='lg'>
                                 <div className='flex aspect-square size-8 items-center justify-center rounded-lg bg-blue-600 text-white'>
                                     <Building2 className='size-4' />
                                 </div>
@@ -86,8 +83,8 @@ export const AppSidebar = () => {
                                         Smart Treasury Solutions
                                     </span>
                                 </div>
-                            </Link>
-                        </SidebarMenuButton>
+                            </SidebarMenuButton>
+                        </Link>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
@@ -99,15 +96,12 @@ export const AppSidebar = () => {
                         <SidebarMenu>
                             {menuItems.map(item => (
                                 <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton
-                                        asChild
-                                        isActive={location.pathname === item.url}
-                                    >
-                                        <Link to={item.url}>
+                                    <Link to={item.url}>
+                                        <SidebarMenuButton isActive={location.pathname === item.url}>
                                             <item.icon />
                                             <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
+                                        </SidebarMenuButton>
+                                    </Link>
                                 </SidebarMenuItem>
                             ))}
                         </SidebarMenu>
@@ -120,15 +114,12 @@ export const AppSidebar = () => {
                         <SidebarMenu>
                             {accountItems.map(item => (
                                 <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton
-                                        asChild
-                                        isActive={location.pathname === item.url}
-                                    >
-                                        <Link to={item.url}>
+                                    <Link to={item.url}>
+                                        <SidebarMenuButton isActive={location.pathname === item.url}>
                                             <item.icon />
                                             <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
+                                        </SidebarMenuButton>
+                                    </Link>
                                 </SidebarMenuItem>
                             ))}
                         </SidebarMenu>
