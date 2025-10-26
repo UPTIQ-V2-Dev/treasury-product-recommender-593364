@@ -31,9 +31,15 @@ const getUserStatements = {
         sortType: Joi.string().valid('asc', 'desc').optional()
     })
 };
+const generateSignedUrl = {
+    params: Joi.object().keys({
+        id: Joi.string().required()
+    })
+};
 export default {
     getFormats,
     uploadStatement,
     getStatement,
-    getUserStatements
+    getUserStatements,
+    generateSignedUrl
 };

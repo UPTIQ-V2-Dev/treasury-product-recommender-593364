@@ -3842,6 +3842,10 @@ export namespace Prisma {
     bankName: string | null
     accountType: string | null
     processingStatus: string | null
+    cloudStorageUrl: string | null
+    signedUrl: string | null
+    storageProvider: string | null
+    storageKey: string | null
     userId: number | null
   }
 
@@ -3853,6 +3857,10 @@ export namespace Prisma {
     bankName: string | null
     accountType: string | null
     processingStatus: string | null
+    cloudStorageUrl: string | null
+    signedUrl: string | null
+    storageProvider: string | null
+    storageKey: string | null
     userId: number | null
   }
 
@@ -3865,6 +3873,10 @@ export namespace Prisma {
     accountType: number
     statementPeriod: number
     processingStatus: number
+    cloudStorageUrl: number
+    signedUrl: number
+    storageProvider: number
+    storageKey: number
     userId: number
     _all: number
   }
@@ -3888,6 +3900,10 @@ export namespace Prisma {
     bankName?: true
     accountType?: true
     processingStatus?: true
+    cloudStorageUrl?: true
+    signedUrl?: true
+    storageProvider?: true
+    storageKey?: true
     userId?: true
   }
 
@@ -3899,6 +3915,10 @@ export namespace Prisma {
     bankName?: true
     accountType?: true
     processingStatus?: true
+    cloudStorageUrl?: true
+    signedUrl?: true
+    storageProvider?: true
+    storageKey?: true
     userId?: true
   }
 
@@ -3911,6 +3931,10 @@ export namespace Prisma {
     accountType?: true
     statementPeriod?: true
     processingStatus?: true
+    cloudStorageUrl?: true
+    signedUrl?: true
+    storageProvider?: true
+    storageKey?: true
     userId?: true
     _all?: true
   }
@@ -4010,6 +4034,10 @@ export namespace Prisma {
     accountType: string | null
     statementPeriod: JsonValue
     processingStatus: string
+    cloudStorageUrl: string | null
+    signedUrl: string | null
+    storageProvider: string | null
+    storageKey: string | null
     userId: number
     _count: BankStatementCountAggregateOutputType | null
     _avg: BankStatementAvgAggregateOutputType | null
@@ -4041,6 +4069,10 @@ export namespace Prisma {
     accountType?: boolean
     statementPeriod?: boolean
     processingStatus?: boolean
+    cloudStorageUrl?: boolean
+    signedUrl?: boolean
+    storageProvider?: boolean
+    storageKey?: boolean
     userId?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     analyses?: boolean | BankStatement$analysesArgs<ExtArgs>
@@ -4056,6 +4088,10 @@ export namespace Prisma {
     accountType?: boolean
     statementPeriod?: boolean
     processingStatus?: boolean
+    cloudStorageUrl?: boolean
+    signedUrl?: boolean
+    storageProvider?: boolean
+    storageKey?: boolean
     userId?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["bankStatement"]>
@@ -4069,6 +4105,10 @@ export namespace Prisma {
     accountType?: boolean
     statementPeriod?: boolean
     processingStatus?: boolean
+    cloudStorageUrl?: boolean
+    signedUrl?: boolean
+    storageProvider?: boolean
+    storageKey?: boolean
     userId?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["bankStatement"]>
@@ -4082,10 +4122,14 @@ export namespace Prisma {
     accountType?: boolean
     statementPeriod?: boolean
     processingStatus?: boolean
+    cloudStorageUrl?: boolean
+    signedUrl?: boolean
+    storageProvider?: boolean
+    storageKey?: boolean
     userId?: boolean
   }
 
-  export type BankStatementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "filename" | "uploadedAt" | "fileSize" | "bankName" | "accountType" | "statementPeriod" | "processingStatus" | "userId", ExtArgs["result"]["bankStatement"]>
+  export type BankStatementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "filename" | "uploadedAt" | "fileSize" | "bankName" | "accountType" | "statementPeriod" | "processingStatus" | "cloudStorageUrl" | "signedUrl" | "storageProvider" | "storageKey" | "userId", ExtArgs["result"]["bankStatement"]>
   export type BankStatementInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     analyses?: boolean | BankStatement$analysesArgs<ExtArgs>
@@ -4113,6 +4157,10 @@ export namespace Prisma {
       accountType: string | null
       statementPeriod: Prisma.JsonValue
       processingStatus: string
+      cloudStorageUrl: string | null
+      signedUrl: string | null
+      storageProvider: string | null
+      storageKey: string | null
       userId: number
     }, ExtArgs["result"]["bankStatement"]>
     composites: {}
@@ -4547,6 +4595,10 @@ export namespace Prisma {
     readonly accountType: FieldRef<"BankStatement", 'String'>
     readonly statementPeriod: FieldRef<"BankStatement", 'Json'>
     readonly processingStatus: FieldRef<"BankStatement", 'String'>
+    readonly cloudStorageUrl: FieldRef<"BankStatement", 'String'>
+    readonly signedUrl: FieldRef<"BankStatement", 'String'>
+    readonly storageProvider: FieldRef<"BankStatement", 'String'>
+    readonly storageKey: FieldRef<"BankStatement", 'String'>
     readonly userId: FieldRef<"BankStatement", 'Int'>
   }
     
@@ -8406,6 +8458,10 @@ export namespace Prisma {
     accountType: 'accountType',
     statementPeriod: 'statementPeriod',
     processingStatus: 'processingStatus',
+    cloudStorageUrl: 'cloudStorageUrl',
+    signedUrl: 'signedUrl',
+    storageProvider: 'storageProvider',
+    storageKey: 'storageKey',
     userId: 'userId'
   };
 
@@ -8813,6 +8869,10 @@ export namespace Prisma {
     accountType?: StringNullableFilter<"BankStatement"> | string | null
     statementPeriod?: JsonFilter<"BankStatement">
     processingStatus?: StringFilter<"BankStatement"> | string
+    cloudStorageUrl?: StringNullableFilter<"BankStatement"> | string | null
+    signedUrl?: StringNullableFilter<"BankStatement"> | string | null
+    storageProvider?: StringNullableFilter<"BankStatement"> | string | null
+    storageKey?: StringNullableFilter<"BankStatement"> | string | null
     userId?: IntFilter<"BankStatement"> | number
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     analyses?: AnalysisResultListRelationFilter
@@ -8827,6 +8887,10 @@ export namespace Prisma {
     accountType?: SortOrderInput | SortOrder
     statementPeriod?: SortOrder
     processingStatus?: SortOrder
+    cloudStorageUrl?: SortOrderInput | SortOrder
+    signedUrl?: SortOrderInput | SortOrder
+    storageProvider?: SortOrderInput | SortOrder
+    storageKey?: SortOrderInput | SortOrder
     userId?: SortOrder
     user?: UserOrderByWithRelationInput
     analyses?: AnalysisResultOrderByRelationAggregateInput
@@ -8844,6 +8908,10 @@ export namespace Prisma {
     accountType?: StringNullableFilter<"BankStatement"> | string | null
     statementPeriod?: JsonFilter<"BankStatement">
     processingStatus?: StringFilter<"BankStatement"> | string
+    cloudStorageUrl?: StringNullableFilter<"BankStatement"> | string | null
+    signedUrl?: StringNullableFilter<"BankStatement"> | string | null
+    storageProvider?: StringNullableFilter<"BankStatement"> | string | null
+    storageKey?: StringNullableFilter<"BankStatement"> | string | null
     userId?: IntFilter<"BankStatement"> | number
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     analyses?: AnalysisResultListRelationFilter
@@ -8858,6 +8926,10 @@ export namespace Prisma {
     accountType?: SortOrderInput | SortOrder
     statementPeriod?: SortOrder
     processingStatus?: SortOrder
+    cloudStorageUrl?: SortOrderInput | SortOrder
+    signedUrl?: SortOrderInput | SortOrder
+    storageProvider?: SortOrderInput | SortOrder
+    storageKey?: SortOrderInput | SortOrder
     userId?: SortOrder
     _count?: BankStatementCountOrderByAggregateInput
     _avg?: BankStatementAvgOrderByAggregateInput
@@ -8878,6 +8950,10 @@ export namespace Prisma {
     accountType?: StringNullableWithAggregatesFilter<"BankStatement"> | string | null
     statementPeriod?: JsonWithAggregatesFilter<"BankStatement">
     processingStatus?: StringWithAggregatesFilter<"BankStatement"> | string
+    cloudStorageUrl?: StringNullableWithAggregatesFilter<"BankStatement"> | string | null
+    signedUrl?: StringNullableWithAggregatesFilter<"BankStatement"> | string | null
+    storageProvider?: StringNullableWithAggregatesFilter<"BankStatement"> | string | null
+    storageKey?: StringNullableWithAggregatesFilter<"BankStatement"> | string | null
     userId?: IntWithAggregatesFilter<"BankStatement"> | number
   }
 
@@ -9319,6 +9395,10 @@ export namespace Prisma {
     accountType?: string | null
     statementPeriod: JsonNullValueInput | InputJsonValue
     processingStatus?: string
+    cloudStorageUrl?: string | null
+    signedUrl?: string | null
+    storageProvider?: string | null
+    storageKey?: string | null
     user: UserCreateNestedOneWithoutStatementsInput
     analyses?: AnalysisResultCreateNestedManyWithoutStatementInput
   }
@@ -9332,6 +9412,10 @@ export namespace Prisma {
     accountType?: string | null
     statementPeriod: JsonNullValueInput | InputJsonValue
     processingStatus?: string
+    cloudStorageUrl?: string | null
+    signedUrl?: string | null
+    storageProvider?: string | null
+    storageKey?: string | null
     userId: number
     analyses?: AnalysisResultUncheckedCreateNestedManyWithoutStatementInput
   }
@@ -9345,6 +9429,10 @@ export namespace Prisma {
     accountType?: NullableStringFieldUpdateOperationsInput | string | null
     statementPeriod?: JsonNullValueInput | InputJsonValue
     processingStatus?: StringFieldUpdateOperationsInput | string
+    cloudStorageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signedUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutStatementsNestedInput
     analyses?: AnalysisResultUpdateManyWithoutStatementNestedInput
   }
@@ -9358,6 +9446,10 @@ export namespace Prisma {
     accountType?: NullableStringFieldUpdateOperationsInput | string | null
     statementPeriod?: JsonNullValueInput | InputJsonValue
     processingStatus?: StringFieldUpdateOperationsInput | string
+    cloudStorageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signedUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: IntFieldUpdateOperationsInput | number
     analyses?: AnalysisResultUncheckedUpdateManyWithoutStatementNestedInput
   }
@@ -9371,6 +9463,10 @@ export namespace Prisma {
     accountType?: string | null
     statementPeriod: JsonNullValueInput | InputJsonValue
     processingStatus?: string
+    cloudStorageUrl?: string | null
+    signedUrl?: string | null
+    storageProvider?: string | null
+    storageKey?: string | null
     userId: number
   }
 
@@ -9383,6 +9479,10 @@ export namespace Prisma {
     accountType?: NullableStringFieldUpdateOperationsInput | string | null
     statementPeriod?: JsonNullValueInput | InputJsonValue
     processingStatus?: StringFieldUpdateOperationsInput | string
+    cloudStorageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signedUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BankStatementUncheckedUpdateManyInput = {
@@ -9394,6 +9494,10 @@ export namespace Prisma {
     accountType?: NullableStringFieldUpdateOperationsInput | string | null
     statementPeriod?: JsonNullValueInput | InputJsonValue
     processingStatus?: StringFieldUpdateOperationsInput | string
+    cloudStorageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signedUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: IntFieldUpdateOperationsInput | number
   }
 
@@ -10002,6 +10106,10 @@ export namespace Prisma {
     accountType?: SortOrder
     statementPeriod?: SortOrder
     processingStatus?: SortOrder
+    cloudStorageUrl?: SortOrder
+    signedUrl?: SortOrder
+    storageProvider?: SortOrder
+    storageKey?: SortOrder
     userId?: SortOrder
   }
 
@@ -10018,6 +10126,10 @@ export namespace Prisma {
     bankName?: SortOrder
     accountType?: SortOrder
     processingStatus?: SortOrder
+    cloudStorageUrl?: SortOrder
+    signedUrl?: SortOrder
+    storageProvider?: SortOrder
+    storageKey?: SortOrder
     userId?: SortOrder
   }
 
@@ -10029,6 +10141,10 @@ export namespace Prisma {
     bankName?: SortOrder
     accountType?: SortOrder
     processingStatus?: SortOrder
+    cloudStorageUrl?: SortOrder
+    signedUrl?: SortOrder
+    storageProvider?: SortOrder
+    storageKey?: SortOrder
     userId?: SortOrder
   }
 
@@ -10938,6 +11054,10 @@ export namespace Prisma {
     accountType?: string | null
     statementPeriod: JsonNullValueInput | InputJsonValue
     processingStatus?: string
+    cloudStorageUrl?: string | null
+    signedUrl?: string | null
+    storageProvider?: string | null
+    storageKey?: string | null
     analyses?: AnalysisResultCreateNestedManyWithoutStatementInput
   }
 
@@ -10950,6 +11070,10 @@ export namespace Prisma {
     accountType?: string | null
     statementPeriod: JsonNullValueInput | InputJsonValue
     processingStatus?: string
+    cloudStorageUrl?: string | null
+    signedUrl?: string | null
+    storageProvider?: string | null
+    storageKey?: string | null
     analyses?: AnalysisResultUncheckedCreateNestedManyWithoutStatementInput
   }
 
@@ -11062,6 +11186,10 @@ export namespace Prisma {
     accountType?: StringNullableFilter<"BankStatement"> | string | null
     statementPeriod?: JsonFilter<"BankStatement">
     processingStatus?: StringFilter<"BankStatement"> | string
+    cloudStorageUrl?: StringNullableFilter<"BankStatement"> | string | null
+    signedUrl?: StringNullableFilter<"BankStatement"> | string | null
+    storageProvider?: StringNullableFilter<"BankStatement"> | string | null
+    storageKey?: StringNullableFilter<"BankStatement"> | string | null
     userId?: IntFilter<"BankStatement"> | number
   }
 
@@ -11370,6 +11498,10 @@ export namespace Prisma {
     accountType?: string | null
     statementPeriod: JsonNullValueInput | InputJsonValue
     processingStatus?: string
+    cloudStorageUrl?: string | null
+    signedUrl?: string | null
+    storageProvider?: string | null
+    storageKey?: string | null
     user: UserCreateNestedOneWithoutStatementsInput
   }
 
@@ -11382,6 +11514,10 @@ export namespace Prisma {
     accountType?: string | null
     statementPeriod: JsonNullValueInput | InputJsonValue
     processingStatus?: string
+    cloudStorageUrl?: string | null
+    signedUrl?: string | null
+    storageProvider?: string | null
+    storageKey?: string | null
     userId: number
   }
 
@@ -11454,6 +11590,10 @@ export namespace Prisma {
     accountType?: NullableStringFieldUpdateOperationsInput | string | null
     statementPeriod?: JsonNullValueInput | InputJsonValue
     processingStatus?: StringFieldUpdateOperationsInput | string
+    cloudStorageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signedUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutStatementsNestedInput
   }
 
@@ -11466,6 +11606,10 @@ export namespace Prisma {
     accountType?: NullableStringFieldUpdateOperationsInput | string | null
     statementPeriod?: JsonNullValueInput | InputJsonValue
     processingStatus?: StringFieldUpdateOperationsInput | string
+    cloudStorageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signedUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: IntFieldUpdateOperationsInput | number
   }
 
@@ -11487,6 +11631,10 @@ export namespace Prisma {
     accountType?: string | null
     statementPeriod: JsonNullValueInput | InputJsonValue
     processingStatus?: string
+    cloudStorageUrl?: string | null
+    signedUrl?: string | null
+    storageProvider?: string | null
+    storageKey?: string | null
   }
 
   export type AnalysisResultCreateManyUserInput = {
@@ -11540,6 +11688,10 @@ export namespace Prisma {
     accountType?: NullableStringFieldUpdateOperationsInput | string | null
     statementPeriod?: JsonNullValueInput | InputJsonValue
     processingStatus?: StringFieldUpdateOperationsInput | string
+    cloudStorageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signedUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
     analyses?: AnalysisResultUpdateManyWithoutStatementNestedInput
   }
 
@@ -11552,6 +11704,10 @@ export namespace Prisma {
     accountType?: NullableStringFieldUpdateOperationsInput | string | null
     statementPeriod?: JsonNullValueInput | InputJsonValue
     processingStatus?: StringFieldUpdateOperationsInput | string
+    cloudStorageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signedUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
     analyses?: AnalysisResultUncheckedUpdateManyWithoutStatementNestedInput
   }
 
@@ -11564,6 +11720,10 @@ export namespace Prisma {
     accountType?: NullableStringFieldUpdateOperationsInput | string | null
     statementPeriod?: JsonNullValueInput | InputJsonValue
     processingStatus?: StringFieldUpdateOperationsInput | string
+    cloudStorageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signedUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    storageProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AnalysisResultUpdateWithoutUserInput = {

@@ -61,7 +61,7 @@ const uploadStatement = catchAsyncWithAuth(async (req, res) => {
         filename: file.originalname,
         fileSize: file.size,
         ...mockProcessedData
-    }, userId);
+    }, file.buffer, userId);
     res.status(httpStatus.CREATED).send({
         id: statement.id,
         filename: statement.filename,
@@ -70,7 +70,11 @@ const uploadStatement = catchAsyncWithAuth(async (req, res) => {
         bankName: statement.bankName,
         accountType: statement.accountType,
         statementPeriod: statement.statementPeriod,
-        processingStatus: statement.processingStatus
+        processingStatus: statement.processingStatus,
+        cloudStorageUrl: statement.cloudStorageUrl,
+        signedUrl: statement.signedUrl,
+        storageProvider: statement.storageProvider,
+        storageKey: statement.storageKey
     });
 });
 const getStatement = catchAsyncWithAuth(async (req, res) => {
@@ -85,9 +89,19 @@ const getUserStatements = catchAsyncWithAuth(async (req, res) => {
     const statements = await statementService.getUserStatements(req.user.id, options);
     res.send(statements);
 });
+const generateSignedUrl = catchAsyncWithAuth(async (req, res) => {
+    // Check if the statement belongs to the user
+    const statement = await statementService.getStatementById(req.params.id, req.user.id);
+    if (!statement) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Bank statement not found');
+    }
+    const signedUrl = await statementService.generateSignedUrl(req.params.id);
+    res.send({ signedUrl });
+});
 export default {
     getSupportedFormats,
     uploadStatement,
     getStatement,
-    getUserStatements
+    getUserStatements,
+    generateSignedUrl
 };

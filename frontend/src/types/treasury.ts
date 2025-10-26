@@ -52,6 +52,7 @@ export interface BankStatement {
         endDate: string;
     };
     processingStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+    signedUrl?: string; // Cloud storage URL for document access
 }
 
 export interface AnalysisResult {

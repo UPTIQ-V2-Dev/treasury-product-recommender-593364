@@ -16,6 +16,9 @@ router
     .route('/:id')
     .get(auth('uploadStatement'), validate(statementValidation.getStatement), statementController.getStatement);
 router
+    .route('/:id/signed-url')
+    .post(auth('uploadStatement'), validate(statementValidation.generateSignedUrl), statementController.generateSignedUrl);
+router
     .route('/')
     .get(auth('uploadStatement'), validate(statementValidation.getUserStatements), statementController.getUserStatements);
 export default router;
@@ -135,7 +138,19 @@ export default router;
  *                       example: "2024-03-31"
  *                 processingStatus:
  *                   type: string
- *                   example: "PENDING"
+ *                   example: "UPLOADED"
+ *                 cloudStorageUrl:
+ *                   type: string
+ *                   example: "GoogleCloudStorage://bucket/path/to/file"
+ *                 signedUrl:
+ *                   type: string
+ *                   example: "https://storage.googleapis.com/signed-url"
+ *                 storageProvider:
+ *                   type: string
+ *                   example: "GoogleCloudStorage"
+ *                 storageKey:
+ *                   type: string
+ *                   example: "bank-statements/stmt123/file.pdf"
  *       "400":
  *         description: Bad request - Invalid file format or missing file
  *       "401":
@@ -186,6 +201,54 @@ export default router;
  *                   type: object
  *                 processingStatus:
  *                   type: string
+ *                 cloudStorageUrl:
+ *                   type: string
+ *                   example: "GoogleCloudStorage://bucket/path/to/file"
+ *                 signedUrl:
+ *                   type: string
+ *                   example: "https://storage.googleapis.com/signed-url"
+ *                 storageProvider:
+ *                   type: string
+ *                   example: "GoogleCloudStorage"
+ *                 storageKey:
+ *                   type: string
+ *                   example: "bank-statements/stmt123/file.pdf"
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "404":
+ *         $ref: '#/components/responses/NotFound'
+ *       "500":
+ *         $ref: '#/components/responses/InternalError'
+ */
+/**
+ * @swagger
+ * /statements/{id}/signed-url:
+ *   post:
+ *     summary: Generate fresh signed URL for bank statement
+ *     description: Generate a new signed URL for downloading a bank statement file from cloud storage.
+ *     tags: [Statements]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Bank statement ID
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 signedUrl:
+ *                   type: string
+ *                   example: "https://storage.googleapis.com/signed-url"
+ *       "400":
+ *         description: Statement not uploaded to cloud storage
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "404":

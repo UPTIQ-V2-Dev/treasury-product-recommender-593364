@@ -75,7 +75,9 @@ export const mockBankStatement = {
         startDate: '2024-03-01',
         endDate: '2024-03-31'
     },
-    processingStatus: 'COMPLETED' as const
+    processingStatus: 'COMPLETED' as const,
+    signedUrl:
+        'https://mock-cloud-storage.com/documents/stmt-123/bank-statement-march-2024.pdf?signature=mockSignature123'
 };
 
 export const mockTreasuryProducts = [

@@ -154,6 +154,10 @@ exports.Prisma.BankStatementScalarFieldEnum = {
   accountType: 'accountType',
   statementPeriod: 'statementPeriod',
   processingStatus: 'processingStatus',
+  cloudStorageUrl: 'cloudStorageUrl',
+  signedUrl: 'signedUrl',
+  storageProvider: 'storageProvider',
+  storageKey: 'storageKey',
   userId: 'userId'
 };
 

@@ -36,9 +36,16 @@ const getUserStatements = {
     })
 };
 
+const generateSignedUrl = {
+    params: Joi.object().keys({
+        id: Joi.string().required()
+    })
+};
+
 export default {
     getFormats,
     uploadStatement,
     getStatement,
-    getUserStatements
+    getUserStatements,
+    generateSignedUrl
 };

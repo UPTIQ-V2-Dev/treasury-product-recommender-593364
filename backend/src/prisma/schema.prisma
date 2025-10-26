@@ -64,6 +64,10 @@ model BankStatement {
   accountType      String?
   statementPeriod  Json
   processingStatus String   @default("PENDING")
+  cloudStorageUrl  String?
+  signedUrl        String?
+  storageProvider  String?
+  storageKey       String?
   user             User     @relation(fields: [userId], references: [id])
   userId           Int
   analyses         AnalysisResult[]

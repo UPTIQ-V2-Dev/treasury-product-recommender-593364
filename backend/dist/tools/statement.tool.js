@@ -16,7 +16,11 @@ const bankStatementSchema = z.object({
     accountType: z.string().nullable(),
     statementPeriod: z.any(),
     processingStatus: z.string(),
-    userId: z.number()
+    userId: z.number(),
+    cloudStorageUrl: z.string().nullable(),
+    signedUrl: z.string().nullable(),
+    storageProvider: z.string().nullable(),
+    storageKey: z.string().nullable()
 });
 const getSupportedFormatsTool = {
     id: 'statement_get_supported_formats',
@@ -106,10 +110,26 @@ const updateStatementStatusTool = {
         return statement;
     }
 };
+const generateSignedUrlTool = {
+    id: 'statement_generate_signed_url',
+    name: 'Generate Fresh Signed URL',
+    description: 'Generate a fresh signed URL for downloading a bank statement file from cloud storage',
+    inputSchema: z.object({
+        id: z.string()
+    }),
+    outputSchema: z.object({
+        signedUrl: z.string()
+    }),
+    fn: async (inputs) => {
+        const signedUrl = await statementService.generateSignedUrl(inputs.id);
+        return { signedUrl };
+    }
+};
 export const statementTools = [
     getSupportedFormatsTool,
     getStatementByIdTool,
     getUserStatementsTool,
     validateFileFormatTool,
-    updateStatementStatusTool
+    updateStatementStatusTool,
+    generateSignedUrlTool
 ];

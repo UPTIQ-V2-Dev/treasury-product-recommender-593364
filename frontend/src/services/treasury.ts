@@ -36,6 +36,31 @@ export const treasuryService = {
                     setTimeout(() => onUploadProgress(i), (i / 100) * 1000);
                 }
             }
+
+            // Trigger agent event for bank statement analysis with mock data
+            try {
+                await emitter.emit({
+                    agentId: '37cff143-f7d2-4204-878f-020620e7697e',
+                    event: 'Bank-Statement-Uploaded',
+                    payload: {
+                        statementId: mockBankStatement.id,
+                        filename: mockBankStatement.filename,
+                        bankName: mockBankStatement.bankName,
+                        accountType: mockBankStatement.accountType,
+                        statementPeriod: mockBankStatement.statementPeriod
+                    },
+                    documents: [
+                        {
+                            signedUrl: mockBankStatement.signedUrl!,
+                            fileName: mockBankStatement.filename,
+                            mimeType: input.file.type
+                        }
+                    ]
+                });
+            } catch (error) {
+                console.error('Failed to trigger treasury analysis agent (mock):', error);
+            }
+
             return mockBankStatement;
         }
 
@@ -56,6 +81,13 @@ export const treasuryService = {
 
         const bankStatement = response.data;
 
+        // Validate that cloud storage upload was successful and signedUrl is present
+        if (!bankStatement.signedUrl) {
+            console.warn(
+                'Warning: Bank statement uploaded but no signedUrl provided from backend. Agent processing may be limited.'
+            );
+        }
+
         // Trigger agent event for bank statement analysis
         try {
             await emitter.emit({
@@ -68,15 +100,15 @@ export const treasuryService = {
                     accountType: bankStatement.accountType,
                     statementPeriod: bankStatement.statementPeriod
                 },
-                documents: response.data.signedUrl
+                documents: bankStatement.signedUrl
                     ? [
                           {
-                              signedUrl: response.data.signedUrl,
+                              signedUrl: bankStatement.signedUrl,
                               fileName: bankStatement.filename,
                               mimeType: input.file.type
                           }
                       ]
-                    : undefined
+                    : []
             });
         } catch (error) {
             console.error('Failed to trigger treasury analysis agent:', error);

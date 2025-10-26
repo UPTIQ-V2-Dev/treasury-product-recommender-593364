@@ -73,6 +73,7 @@ const uploadStatement = catchAsyncWithAuth(async (req, res) => {
             fileSize: file.size,
             ...mockProcessedData
         },
+        file.buffer,
         userId
     );
 
@@ -84,7 +85,11 @@ const uploadStatement = catchAsyncWithAuth(async (req, res) => {
         bankName: statement.bankName,
         accountType: statement.accountType,
         statementPeriod: statement.statementPeriod,
-        processingStatus: statement.processingStatus
+        processingStatus: statement.processingStatus,
+        cloudStorageUrl: statement.cloudStorageUrl,
+        signedUrl: statement.signedUrl,
+        storageProvider: statement.storageProvider,
+        storageKey: statement.storageKey
     });
 });
 
@@ -102,9 +107,21 @@ const getUserStatements = catchAsyncWithAuth(async (req, res) => {
     res.send(statements);
 });
 
+const generateSignedUrl = catchAsyncWithAuth(async (req, res) => {
+    // Check if the statement belongs to the user
+    const statement = await statementService.getStatementById(req.params.id, req.user.id);
+    if (!statement) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Bank statement not found');
+    }
+
+    const signedUrl = await statementService.generateSignedUrl(req.params.id);
+    res.send({ signedUrl });
+});
+
 export default {
     getSupportedFormats,
     uploadStatement,
     getStatement,
-    getUserStatements
+    getUserStatements,
+    generateSignedUrl
 };
