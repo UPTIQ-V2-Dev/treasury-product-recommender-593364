@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Upload, FileText, AlertCircle, CheckCircle, X } from 'lucide-react';
@@ -20,6 +20,17 @@ export const StatementUploadPage = () => {
     const [dragActive, setDragActive] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [uploadedStatement, setUploadedStatement] = useState<BankStatement | null>(null);
+
+    // Reset component state when component mounts
+    useEffect(() => {
+        setSelectedFile(null);
+        setUploadProgress(0);
+        setIsAnalyzing(false);
+        setUploadedStatement(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    }, []);
 
     // Get supported formats
     const { data: supportedFormats = [] } = useQuery({
@@ -74,18 +85,31 @@ export const StatementUploadPage = () => {
         }
     }, []);
 
-    const handleDrop = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setDragActive(false);
+    const handleDrop = useCallback(
+        (e: React.DragEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setDragActive(false);
 
-        const files = e.dataTransfer.files;
-        if (files && files[0]) {
-            setSelectedFile(files[0]);
-        }
-    }, []);
+            // Prevent file drop if upload is in progress
+            if (uploadMutation.isPending || isAnalyzing) {
+                return;
+            }
+
+            const files = e.dataTransfer.files;
+            if (files && files[0]) {
+                setSelectedFile(files[0]);
+            }
+        },
+        [uploadMutation.isPending, isAnalyzing]
+    );
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Prevent file selection if upload is in progress
+        if (uploadMutation.isPending || isAnalyzing) {
+            return;
+        }
+
         const files = e.target.files;
         if (files && files[0]) {
             setSelectedFile(files[0]);
@@ -96,6 +120,14 @@ export const StatementUploadPage = () => {
         if (selectedFile) {
             uploadMutation.mutate(selectedFile);
         }
+    };
+
+    const handleClickUploadZone = () => {
+        // Prevent opening file explorer if upload is in progress
+        if (uploadMutation.isPending || isAnalyzing) {
+            return;
+        }
+        fileInputRef.current?.click();
     };
 
     const clearFile = () => {
@@ -197,15 +229,18 @@ export const StatementUploadPage = () => {
                     <CardContent>
                         <div
                             className={cn(
-                                'border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer',
+                                'border-2 border-dashed rounded-lg p-8 text-center transition-colors',
                                 dragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25',
-                                !selectedFile && 'hover:border-muted-foreground/50'
+                                !selectedFile && 'hover:border-muted-foreground/50',
+                                uploadMutation.isPending || isAnalyzing
+                                    ? 'cursor-not-allowed opacity-50'
+                                    : 'cursor-pointer'
                             )}
                             onDragEnter={handleDrag}
                             onDragLeave={handleDrag}
                             onDragOver={handleDrag}
                             onDrop={handleDrop}
-                            onClick={() => fileInputRef.current?.click()}
+                            onClick={handleClickUploadZone}
                         >
                             <input
                                 ref={fileInputRef}
