@@ -1,17 +1,14 @@
 import { api } from '@/lib/api';
-import { mockApiDelay, buildQueryParams } from '@/lib/utils';
-import { mockSupportedFormats, mockBankStatement, mockAnalysisStatus, mockAnalysisHistory } from '@/data/mockData';
+import { mockApiDelay } from '@/lib/utils';
+import { mockSupportedFormats, mockBankStatement, mockAnalysisStatus } from '@/data/mockData';
 import { emitter } from '@/agentSdk';
 import type {
     BankStatement,
     AnalysisResult,
     AnalysisStatus,
     SupportedFormat,
-    CreateUploadInput,
-    AnalysisHistoryItem,
-    HistorySearchParams
+    CreateUploadInput
 } from '@/types/treasury';
-import type { PaginatedResponse } from '@/types/api';
 
 export const treasuryService = {
     // Get supported file formats
@@ -204,128 +201,6 @@ export const treasuryService = {
             };
         }
         const response = await api.post(`/recommendations/${recommendationId}/contact`, contactInfo);
-        return response.data;
-    },
-
-    // Get analysis history
-    getAnalysisHistory: async (params?: HistorySearchParams): Promise<PaginatedResponse<AnalysisHistoryItem>> => {
-        if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-            console.log('--- MOCK API: getAnalysisHistory ---', params);
-            await mockApiDelay();
-
-            let filteredHistory = [...mockAnalysisHistory];
-
-            // Apply search filter
-            if (params?.search) {
-                const searchLower = params.search.toLowerCase();
-                filteredHistory = filteredHistory.filter(
-                    item =>
-                        item.filename.toLowerCase().includes(searchLower) ||
-                        item.bankName.toLowerCase().includes(searchLower)
-                );
-            }
-
-            // Apply status filter
-            if (params?.filters?.status) {
-                filteredHistory = filteredHistory.filter(item => item.status === params.filters?.status);
-            }
-
-            // Apply bank name filter
-            if (params?.filters?.bankName) {
-                filteredHistory = filteredHistory.filter(item => item.bankName === params.filters?.bankName);
-            }
-
-            // Apply risk profile filter
-            if (params?.filters?.riskProfile) {
-                filteredHistory = filteredHistory.filter(item => item.riskProfile === params.filters?.riskProfile);
-            }
-
-            // Apply date range filter
-            if (params?.filters?.dateRange) {
-                const startDate = new Date(params.filters.dateRange.startDate);
-                const endDate = new Date(params.filters.dateRange.endDate);
-                filteredHistory = filteredHistory.filter(item => {
-                    const itemDate = new Date(item.analysisDate);
-                    return itemDate >= startDate && itemDate <= endDate;
-                });
-            }
-
-            // Apply sorting
-            if (params?.sortBy) {
-                filteredHistory.sort((a, b) => {
-                    const aValue = a[params.sortBy!];
-                    const bValue = b[params.sortBy!];
-                    const direction = params.sortOrder === 'desc' ? -1 : 1;
-
-                    if (typeof aValue === 'string' && typeof bValue === 'string') {
-                        return aValue.localeCompare(bValue) * direction;
-                    }
-                    if (typeof aValue === 'number' && typeof bValue === 'number') {
-                        return (aValue - bValue) * direction;
-                    }
-                    return 0;
-                });
-            } else {
-                // Default sort by analysis date descending
-                filteredHistory.sort((a, b) => new Date(b.analysisDate).getTime() - new Date(a.analysisDate).getTime());
-            }
-
-            // Apply pagination
-            const page = params?.page || 1;
-            const limit = params?.limit || 10;
-            const startIndex = (page - 1) * limit;
-            const endIndex = startIndex + limit;
-            const paginatedResults = filteredHistory.slice(startIndex, endIndex);
-
-            return {
-                results: paginatedResults,
-                page,
-                limit,
-                totalPages: Math.ceil(filteredHistory.length / limit),
-                totalResults: filteredHistory.length
-            };
-        }
-
-        const queryParams = buildQueryParams(params);
-        const response = await api.get(`/analysis/history${queryParams}`);
-        return response.data;
-    },
-
-    // Export analysis to PDF/Excel
-    exportAnalysis: async (analysisId: string, format: 'pdf' | 'excel' = 'pdf'): Promise<Blob> => {
-        if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-            console.log('--- MOCK API: exportAnalysis ---', analysisId, format);
-            await mockApiDelay();
-            // Return a mock blob for demo purposes
-            const mockContent =
-                format === 'pdf' ? 'Mock PDF content for analysis export' : 'Mock Excel content for analysis export';
-            return new Blob([mockContent], {
-                type:
-                    format === 'pdf'
-                        ? 'application/pdf'
-                        : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            });
-        }
-
-        const response = await api.get(`/analysis/${analysisId}/export`, {
-            params: { format },
-            responseType: 'blob'
-        });
-        return response.data;
-    },
-
-    // Delete analysis from history
-    deleteAnalysis: async (analysisId: string): Promise<{ success: boolean; message: string }> => {
-        if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-            console.log('--- MOCK API: deleteAnalysis ---', analysisId);
-            await mockApiDelay();
-            return {
-                success: true,
-                message: 'Analysis deleted successfully'
-            };
-        }
-
-        const response = await api.delete(`/analysis/${analysisId}`);
         return response.data;
     }
 };

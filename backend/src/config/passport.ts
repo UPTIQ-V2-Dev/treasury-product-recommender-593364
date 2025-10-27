@@ -1,4 +1,5 @@
 import prisma from '../client.ts';
+import { TokenType } from '../generated/prisma/index.js';
 import config from './config.ts';
 import { ExtractJwt, Strategy as JwtStrategy, VerifyCallback } from 'passport-jwt';
 
@@ -9,7 +10,7 @@ const jwtOptions = {
 
 const jwtVerify: VerifyCallback = async (payload, done) => {
     try {
-        if (payload.type !== 'ACCESS') {
+        if (payload.type !== TokenType.ACCESS) {
             throw new Error('Invalid token type');
         }
         const user = await prisma.user.findUnique({

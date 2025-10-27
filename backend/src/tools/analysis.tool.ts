@@ -124,78 +124,6 @@ const createAnalysisTool: MCPTool = {
     }
 };
 
-const analysisHistorySchema = z.object({
-    results: z.array(
-        z.object({
-            id: z.string(),
-            statementId: z.string(),
-            analysisDate: z.string(),
-            status: z.enum([
-                AnalysisStatus.PENDING,
-                AnalysisStatus.PROCESSING,
-                AnalysisStatus.COMPLETED,
-                AnalysisStatus.FAILED
-            ]),
-            riskProfile: z.string().nullable(),
-            averageBalance: z.number().nullable(),
-            liquidityCoverage: z.number().nullable(),
-            cashFlowVolatility: z.number().nullable(),
-            progress: z.number(),
-            currentStep: z.string().nullable(),
-            error: z.string().nullable()
-        })
-    ),
-    page: z.number(),
-    limit: z.number(),
-    totalPages: z.number(),
-    totalResults: z.number()
-});
-
-const getAnalysisHistoryTool: MCPTool = {
-    id: 'analysis_get_history',
-    name: 'Get Analysis History',
-    description: "Get paginated list of user's analysis history with filtering capabilities",
-    inputSchema: z.object({
-        userId: z.number().int(),
-        status: z
-            .enum([AnalysisStatus.PENDING, AnalysisStatus.PROCESSING, AnalysisStatus.COMPLETED, AnalysisStatus.FAILED])
-            .optional(),
-        dateFrom: z.string().datetime().optional(),
-        dateTo: z.string().datetime().optional(),
-        sortBy: z.enum(['analysisDate', 'status']).optional(),
-        sortType: z.enum(['asc', 'desc']).optional(),
-        limit: z.number().int().min(1).max(100).optional(),
-        page: z.number().int().min(1).optional()
-    }),
-    outputSchema: analysisHistorySchema,
-    fn: async (inputs: {
-        userId: number;
-        status?: AnalysisStatus;
-        dateFrom?: string;
-        dateTo?: string;
-        sortBy?: string;
-        sortType?: 'asc' | 'desc';
-        limit?: number;
-        page?: number;
-    }) => {
-        const filter: any = {};
-        const options: any = {};
-
-        // Extract filter params
-        if (inputs.status) filter.status = inputs.status;
-        if (inputs.dateFrom) filter.dateFrom = new Date(inputs.dateFrom);
-        if (inputs.dateTo) filter.dateTo = new Date(inputs.dateTo);
-
-        // Extract options
-        if (inputs.sortBy) options.sortBy = inputs.sortBy;
-        if (inputs.sortType) options.sortType = inputs.sortType;
-        if (inputs.limit) options.limit = inputs.limit;
-        if (inputs.page) options.page = inputs.page;
-        const result = await analysisService.queryAnalysisHistory(inputs.userId, filter, options);
-        return result;
-    }
-};
-
 const updateAnalysisStatusTool: MCPTool = {
     id: 'analysis_update_status',
     name: 'Update Analysis Status',
@@ -255,7 +183,6 @@ const updateAnalysisStatusTool: MCPTool = {
 export const analysisTools: MCPTool[] = [
     getAnalysisStatusTool,
     getAnalysisResultsTool,
-    getAnalysisHistoryTool,
     retryAnalysisTool,
     createAnalysisTool,
     updateAnalysisStatusTool

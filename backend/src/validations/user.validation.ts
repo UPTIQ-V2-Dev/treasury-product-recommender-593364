@@ -1,3 +1,4 @@
+import { Role } from '../generated/prisma/index.js';
 import { password } from './custom.validation.ts';
 import Joi from 'joi';
 
@@ -6,7 +7,7 @@ const createUser = {
         email: Joi.string().required().email(),
         password: Joi.string().required().custom(password),
         name: Joi.string().required(),
-        role: Joi.string().required().valid('USER', 'ADMIN')
+        role: Joi.string().required().valid(Role.USER, Role.ADMIN)
     })
 };
 

@@ -1,23 +1,6 @@
 import { analysisService } from '../services/index.ts';
 import catchAsyncWithAuth from '../utils/catchAsyncWithAuth.ts';
-import pick from '../utils/pick.ts';
 import httpStatus from 'http-status';
-
-const getAnalysisHistory = catchAsyncWithAuth(async (req, res) => {
-    const userId = req.user.id;
-    const filter = pick(req.validatedQuery, ['status', 'dateFrom', 'dateTo']);
-    const options = pick(req.validatedQuery, ['sortBy', 'sortType', 'limit', 'page']);
-
-    // Convert string dates to Date objects if present
-    if (filter.dateFrom) {
-        filter.dateFrom = new Date(filter.dateFrom as string);
-    }
-    if (filter.dateTo) {
-        filter.dateTo = new Date(filter.dateTo as string);
-    }
-    const result = await analysisService.queryAnalysisHistory(userId, filter, options);
-    res.send(result);
-});
 
 const getAnalysisStatus = catchAsyncWithAuth(async (req, res) => {
     const { analysisId } = req.params;
@@ -54,7 +37,6 @@ const retryAnalysis = catchAsyncWithAuth(async (req, res) => {
 });
 
 export default {
-    getAnalysisHistory,
     getAnalysisStatus,
     getAnalysisResults,
     retryAnalysis

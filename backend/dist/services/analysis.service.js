@@ -167,71 +167,6 @@ const createAnalysis = async (statementId, userId) => {
     return analysis;
 };
 /**
- * Query analysis results for a user
- * @param {number} userId - user id to filter by
- * @param {Object} filter - Prisma filter
- * @param {Object} options - Query options
- * @param {string} [options.sortBy] - Sort option in the format: sortField:(desc|asc)
- * @param {number} [options.limit] - Maximum number of results per page (default = 10)
- * @param {number} [options.page] - Current page (default = 1)
- * @returns {Promise<QueryResult>}
- */
-const queryAnalysisHistory = async (userId, filter, options) => {
-    const page = options.page ?? 1;
-    const limit = options.limit ?? 10;
-    const sortBy = options.sortBy ?? 'analysisDate';
-    const sortType = options.sortType ?? 'desc';
-    // Build where clause
-    const where = {
-        userId: userId
-    };
-    if (filter.status) {
-        where.status = filter.status;
-    }
-    if (filter.dateFrom || filter.dateTo) {
-        where.analysisDate = {};
-        if (filter.dateFrom) {
-            where.analysisDate.gte = filter.dateFrom;
-        }
-        if (filter.dateTo) {
-            where.analysisDate.lte = filter.dateTo;
-        }
-    }
-    const [analyses, totalResults] = await Promise.all([
-        prisma.analysisResult.findMany({
-            where,
-            select: {
-                id: true,
-                statementId: true,
-                analysisDate: true,
-                status: true,
-                riskProfile: true,
-                averageBalance: true,
-                liquidityCoverage: true,
-                cashFlowVolatility: true,
-                progress: true,
-                currentStep: true,
-                error: true
-            },
-            skip: (page - 1) * limit,
-            take: limit,
-            orderBy: { [sortBy]: sortType }
-        }),
-        prisma.analysisResult.count({ where })
-    ]);
-    const totalPages = Math.ceil(totalResults / limit);
-    return {
-        results: analyses.map(analysis => ({
-            ...analysis,
-            analysisDate: analysis.analysisDate.toISOString()
-        })),
-        page,
-        limit,
-        totalPages,
-        totalResults
-    };
-};
-/**
  * Update analysis status and progress
  * @param {string} analysisId
  * @param {Object} updateData
@@ -254,7 +189,6 @@ export default {
     getAnalysisById,
     getAnalysisStatus,
     getAnalysisResults,
-    queryAnalysisHistory,
     retryAnalysis,
     createAnalysis,
     updateAnalysisStatus

@@ -1,3 +1,4 @@
+import { Role } from '../generated/prisma/index.js';
 import { userService } from '../services/index.ts';
 import { MCPTool } from '../types/mcp.ts';
 import pick from '../utils/pick.ts';
@@ -22,10 +23,10 @@ const createUserTool: MCPTool = {
         email: z.string().email(),
         password: z.string().min(8),
         name: z.string(),
-        role: z.enum(['USER', 'ADMIN'])
+        role: z.enum([Role.USER, Role.ADMIN])
     }),
     outputSchema: userSchema,
-    fn: async (inputs: { email: string; password: string; name: string; role: string }) => {
+    fn: async (inputs: { email: string; password: string; name: string; role: Role }) => {
         const user = await userService.createUser(inputs.email, inputs.password, inputs.name, inputs.role);
         return user;
     }

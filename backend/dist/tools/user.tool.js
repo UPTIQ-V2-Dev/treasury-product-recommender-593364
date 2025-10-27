@@ -1,3 +1,4 @@
+import { Role } from '../generated/prisma/index.js';
 import { userService } from "../services/index.js";
 import pick from "../utils/pick.js";
 import { z } from 'zod';
@@ -19,7 +20,7 @@ const createUserTool = {
         email: z.string().email(),
         password: z.string().min(8),
         name: z.string(),
-        role: z.enum(['USER', 'ADMIN'])
+        role: z.enum([Role.USER, Role.ADMIN])
     }),
     outputSchema: userSchema,
     fn: async (inputs) => {

@@ -1,4 +1,5 @@
 import prisma from "../client.js";
+import { TokenType } from '../generated/prisma/index.js';
 import ApiError from "../utils/ApiError.js";
 import { encryptPassword, isPasswordMatch } from "../utils/encryption.js";
 import exclude from "../utils/exclude.js";
@@ -40,7 +41,7 @@ const logout = async (refreshToken) => {
     const refreshTokenData = await prisma.token.findFirst({
         where: {
             token: refreshToken,
-            type: 'REFRESH',
+            type: TokenType.REFRESH,
             blacklisted: false
         }
     });
@@ -56,7 +57,7 @@ const logout = async (refreshToken) => {
  */
 const refreshAuth = async (refreshToken) => {
     try {
-        const refreshTokenData = await tokenService.verifyToken(refreshToken, 'REFRESH');
+        const refreshTokenData = await tokenService.verifyToken(refreshToken, TokenType.REFRESH);
         const { userId } = refreshTokenData;
         await prisma.token.delete({ where: { id: refreshTokenData.id } });
         return tokenService.generateAuthTokens({ id: userId });
@@ -73,14 +74,14 @@ const refreshAuth = async (refreshToken) => {
  */
 const resetPassword = async (resetPasswordToken, newPassword) => {
     try {
-        const resetPasswordTokenData = await tokenService.verifyToken(resetPasswordToken, 'RESET_PASSWORD');
+        const resetPasswordTokenData = await tokenService.verifyToken(resetPasswordToken, TokenType.RESET_PASSWORD);
         const user = await userService.getUserById(resetPasswordTokenData.userId);
         if (!user) {
             throw new Error();
         }
         const encryptedPassword = await encryptPassword(newPassword);
         await userService.updateUserById(user.id, { password: encryptedPassword });
-        await prisma.token.deleteMany({ where: { userId: user.id, type: 'RESET_PASSWORD' } });
+        await prisma.token.deleteMany({ where: { userId: user.id, type: TokenType.RESET_PASSWORD } });
     }
     catch (error) {
         throw new ApiError(httpStatus.UNAUTHORIZED, 'Password reset failed');
@@ -93,9 +94,9 @@ const resetPassword = async (resetPasswordToken, newPassword) => {
  */
 const verifyEmail = async (verifyEmailToken) => {
     try {
-        const verifyEmailTokenData = await tokenService.verifyToken(verifyEmailToken, 'VERIFY_EMAIL');
+        const verifyEmailTokenData = await tokenService.verifyToken(verifyEmailToken, TokenType.VERIFY_EMAIL);
         await prisma.token.deleteMany({
-            where: { userId: verifyEmailTokenData.userId, type: 'VERIFY_EMAIL' }
+            where: { userId: verifyEmailTokenData.userId, type: TokenType.VERIFY_EMAIL }
         });
         await userService.updateUserById(verifyEmailTokenData.userId, { isEmailVerified: true });
     }

@@ -209,109 +209,6 @@ const createAnalysis = async (statementId: string, userId: number): Promise<Anal
 };
 
 /**
- * Query analysis results for a user
- * @param {number} userId - user id to filter by
- * @param {Object} filter - Prisma filter
- * @param {Object} options - Query options
- * @param {string} [options.sortBy] - Sort option in the format: sortField:(desc|asc)
- * @param {number} [options.limit] - Maximum number of results per page (default = 10)
- * @param {number} [options.page] - Current page (default = 1)
- * @returns {Promise<QueryResult>}
- */
-const queryAnalysisHistory = async (
-    userId: number,
-    filter: {
-        status?: AnalysisStatus;
-        dateFrom?: Date;
-        dateTo?: Date;
-    },
-    options: {
-        limit?: number;
-        page?: number;
-        sortBy?: string;
-        sortType?: 'asc' | 'desc';
-    }
-): Promise<{
-    results: Array<{
-        id: string;
-        statementId: string;
-        analysisDate: string;
-        status: AnalysisStatus;
-        riskProfile: string | null;
-        averageBalance: number | null;
-        liquidityCoverage: number | null;
-        cashFlowVolatility: number | null;
-        progress: number;
-        currentStep: string | null;
-        error: string | null;
-    }>;
-    page: number;
-    limit: number;
-    totalPages: number;
-    totalResults: number;
-}> => {
-    const page = options.page ?? 1;
-    const limit = options.limit ?? 10;
-    const sortBy = options.sortBy ?? 'analysisDate';
-    const sortType = options.sortType ?? 'desc';
-
-    // Build where clause
-    const where: any = {
-        userId: userId
-    };
-
-    if (filter.status) {
-        where.status = filter.status;
-    }
-
-    if (filter.dateFrom || filter.dateTo) {
-        where.analysisDate = {};
-        if (filter.dateFrom) {
-            where.analysisDate.gte = filter.dateFrom;
-        }
-        if (filter.dateTo) {
-            where.analysisDate.lte = filter.dateTo;
-        }
-    }
-
-    const [analyses, totalResults] = await Promise.all([
-        prisma.analysisResult.findMany({
-            where,
-            select: {
-                id: true,
-                statementId: true,
-                analysisDate: true,
-                status: true,
-                riskProfile: true,
-                averageBalance: true,
-                liquidityCoverage: true,
-                cashFlowVolatility: true,
-                progress: true,
-                currentStep: true,
-                error: true
-            },
-            skip: (page - 1) * limit,
-            take: limit,
-            orderBy: { [sortBy]: sortType }
-        }),
-        prisma.analysisResult.count({ where })
-    ]);
-
-    const totalPages = Math.ceil(totalResults / limit);
-
-    return {
-        results: analyses.map(analysis => ({
-            ...analysis,
-            analysisDate: analysis.analysisDate.toISOString()
-        })),
-        page,
-        limit,
-        totalPages,
-        totalResults
-    };
-};
-
-/**
  * Update analysis status and progress
  * @param {string} analysisId
  * @param {Object} updateData
@@ -352,7 +249,6 @@ export default {
     getAnalysisById,
     getAnalysisStatus,
     getAnalysisResults,
-    queryAnalysisHistory,
     retryAnalysis,
     createAnalysis,
     updateAnalysisStatus

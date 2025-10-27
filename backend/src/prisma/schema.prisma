@@ -19,7 +19,7 @@ model User {
   email           String   @unique
   name            String?
   password        String
-  role            String   @default("USER")
+  role            Role     @default(USER)
   isEmailVerified Boolean  @default(false)
   clientType      String?
   companyName     String?
@@ -35,14 +35,25 @@ model User {
 model Token {
   id          Int       @id @default(autoincrement())
   token       String
-  type        String
+  type        TokenType
   expires     DateTime
-  blacklisted Boolean   @default(false)
+  blacklisted Boolean
   createdAt   DateTime  @default(now())
   user        User      @relation(fields: [userId], references: [id])
   userId      Int
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TokenType {
+  ACCESS
+  REFRESH
+  RESET_PASSWORD
+  VERIFY_EMAIL
+}
 
 model BankStatement {
   id               String   @id @default(cuid())
