@@ -1,6 +1,5 @@
 import prisma from "../client.js";
 import config from "../config/config.js";
-import { TokenType } from '../generated/prisma/index.js';
 import ApiError from "../utils/ApiError.js";
 import userService from "./user.service.js";
 import httpStatus from 'http-status';
@@ -68,10 +67,10 @@ const verifyToken = async (token, type) => {
  */
 const generateAuthTokens = async (user) => {
     const accessTokenExpires = moment().add(config.jwt.accessExpirationMinutes, 'minutes');
-    const accessToken = generateToken(user.id, accessTokenExpires, TokenType.ACCESS);
+    const accessToken = generateToken(user.id, accessTokenExpires, 'ACCESS');
     const refreshTokenExpires = moment().add(config.jwt.refreshExpirationDays, 'days');
-    const refreshToken = generateToken(user.id, refreshTokenExpires, TokenType.REFRESH);
-    await saveToken(refreshToken, user.id, refreshTokenExpires, TokenType.REFRESH);
+    const refreshToken = generateToken(user.id, refreshTokenExpires, 'REFRESH');
+    await saveToken(refreshToken, user.id, refreshTokenExpires, 'REFRESH');
     return {
         access: {
             token: accessToken,
@@ -94,8 +93,8 @@ const generateResetPasswordToken = async (email) => {
         throw new ApiError(httpStatus.NOT_FOUND, 'No users found with this email');
     }
     const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
-    const resetPasswordToken = generateToken(user.id, expires, TokenType.RESET_PASSWORD);
-    await saveToken(resetPasswordToken, user.id, expires, TokenType.RESET_PASSWORD);
+    const resetPasswordToken = generateToken(user.id, expires, 'RESET_PASSWORD');
+    await saveToken(resetPasswordToken, user.id, expires, 'RESET_PASSWORD');
     return resetPasswordToken;
 };
 /**
@@ -105,8 +104,8 @@ const generateResetPasswordToken = async (email) => {
  */
 const generateVerifyEmailToken = async (user) => {
     const expires = moment().add(config.jwt.verifyEmailExpirationMinutes, 'minutes');
-    const verifyEmailToken = generateToken(user.id, expires, TokenType.VERIFY_EMAIL);
-    await saveToken(verifyEmailToken, user.id, expires, TokenType.VERIFY_EMAIL);
+    const verifyEmailToken = generateToken(user.id, expires, 'VERIFY_EMAIL');
+    await saveToken(verifyEmailToken, user.id, expires, 'VERIFY_EMAIL');
     return verifyEmailToken;
 };
 export default {

@@ -10,9 +10,13 @@ model User {
   password        String
   role            String   @default("USER")
   isEmailVerified Boolean  @default(false)
+  clientType      String?
+  companyName     String?
+  phone           String?
+  agreeToTerms    Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  tokens          Token[]
+  Token           Token[]
   statements      BankStatement[]
   analyses        AnalysisResult[]
 }
@@ -37,24 +41,39 @@ model BankStatement {
   accountType      String?
   statementPeriod  Json
   processingStatus String   @default("PENDING")
+  cloudStorageUrl  String?
+  signedUrl        String?
+  storageProvider  String?
+  storageKey       String?
   user             User     @relation(fields: [userId], references: [id])
   userId           Int
   analyses         AnalysisResult[]
 }
 
 model AnalysisResult {
-  id                  String        @id @default(cuid())
+  id                  String         @id @default(cuid())
   statementId         String
-  analysisDate        DateTime      @default(now())
-  financialInsights   Json
-  recommendations     Json
-  riskProfile         String
-  liquidityCoverage   Float
-  averageBalance      Float
-  cashFlowVolatility  Float
-  user                User          @relation(fields: [userId], references: [id])
+  analysisDate        DateTime       @default(now())
+  financialInsights   Json?
+  recommendations     Json?
+  riskProfile         String?
+  liquidityCoverage   Float?
+  averageBalance      Float?
+  cashFlowVolatility  Float?
+  status              AnalysisStatus @default(PENDING)
+  progress            Int            @default(0)
+  currentStep         String?
+  error               String?
+  user                User           @relation(fields: [userId], references: [id])
   userId              Int
-  statement           BankStatement @relation(fields: [statementId], references: [id])
+  statement           BankStatement  @relation(fields: [statementId], references: [id])
+}
+
+enum AnalysisStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
 model TreasuryProduct {
@@ -78,6 +97,8 @@ model SupportedFormat {
   extension   String
   mimeType    String
   description String
+
+  @@unique([extension, mimeType])
 }
 ```
 
@@ -320,3 +341,33 @@ OUT: 200:{id:str, name:str, category:str, description:str, minInvestment:float, 
 ERR: {"401":"Authentication required", "404":"Product not found", "500":"Internal server error"}
 EX_REQ: curl -X GET /products/prod-1 -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 EX_RES_200: {"id":"prod-1","name":"High-Yield Business Savings","category":"SAVINGS","description":"Earn competitive interest rates","minInvestment":10000,"expectedReturn":4.5,"riskLevel":"LOW","tenure":"No fixed term","features":["No monthly fees","24/7 online access","FDIC insured"],"eligibility":["Business account required","Minimum balance $10,000"],"documents":["Business license","Tax ID number"],"createdAt":"2025-10-26T10:00:00Z","updatedAt":"2025-10-26T10:00:00Z"}
+
+---
+
+EP: GET /analysis/history
+DESC: Get paginated analysis history with filtering and search capabilities.
+IN: headers:{Authorization:str!}, query:{search:str, status:str, bankName:str, riskProfile:str, startDate:str, endDate:str, sortBy:str, sortOrder:str, page:int, limit:int}
+OUT: 200:{results:arr[{id:str, statementId:str, filename:str, bankName:str, analysisDate:str, status:str, recommendationCount:int, riskProfile:str, averageBalance:float, topRecommendation:obj}], page:int, limit:int, totalPages:int, totalResults:int}
+ERR: {"401":"Authentication required", "400":"Invalid query parameters", "500":"Internal server error"}
+EX_REQ: curl -X GET "/analysis/history?page=1&limit=10&status=COMPLETED" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+EX_RES_200: {"results":[{"id":"analysis-123","statementId":"stmt-123","filename":"bank-statement-march-2024.pdf","bankName":"Chase Bank","analysisDate":"2024-03-15T10:30:00.000Z","status":"COMPLETED","recommendationCount":2,"riskProfile":"LOW","averageBalance":125000,"topRecommendation":{"productName":"High-Yield Business Savings","expectedReturn":4.5}}],"page":1,"limit":10,"totalPages":1,"totalResults":1}
+
+---
+
+EP: GET /analysis/{analysisId}/export
+DESC: Export analysis results to PDF or Excel format.
+IN: headers:{Authorization:str!}, params:{analysisId:str!}, query:{format:str!}
+OUT: 200:blob
+ERR: {"401":"Authentication required", "404":"Analysis not found", "403":"Access denied", "400":"Invalid format or analysis not completed", "500":"Internal server error"}
+EX_REQ: curl -X GET "/analysis/analysis-123/export?format=pdf" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." --output analysis.pdf
+EX_RES_200: [Binary PDF/Excel file content]
+
+---
+
+EP: DELETE /analysis/{analysisId}
+DESC: Delete analysis from user's history.
+IN: headers:{Authorization:str!}, params:{analysisId:str!}
+OUT: 200:{success:bool, message:str}
+ERR: {"401":"Authentication required", "404":"Analysis not found", "403":"Access denied", "500":"Internal server error"}
+EX_REQ: curl -X DELETE /analysis/analysis-123 -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+EX_RES_200: {"success":true,"message":"Analysis deleted successfully"}

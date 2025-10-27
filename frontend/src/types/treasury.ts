@@ -97,3 +97,38 @@ export interface ProcessingStep {
     status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
     description: string;
 }
+
+export interface AnalysisHistoryItem {
+    id: string;
+    statementId: string;
+    filename: string;
+    bankName: string;
+    analysisDate: string;
+    status: 'COMPLETED' | 'FAILED' | 'PROCESSING';
+    recommendationCount: number;
+    riskProfile: RiskLevel;
+    averageBalance: number;
+    topRecommendation?: {
+        productName: string;
+        expectedReturn: number;
+    };
+}
+
+export interface HistoryFilter {
+    status?: 'COMPLETED' | 'FAILED' | 'PROCESSING';
+    bankName?: string;
+    riskProfile?: RiskLevel;
+    dateRange?: {
+        startDate: string;
+        endDate: string;
+    };
+}
+
+export interface HistorySearchParams {
+    search?: string;
+    filters?: HistoryFilter;
+    sortBy?: 'analysisDate' | 'filename' | 'bankName' | 'averageBalance';
+    sortOrder?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
+}

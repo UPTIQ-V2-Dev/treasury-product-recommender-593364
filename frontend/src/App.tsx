@@ -6,6 +6,7 @@ import { ComingSoonPage } from '@/pages/ComingSoonPage';
 import { StatementUploadPage } from '@/pages/StatementUploadPage';
 import { AnalysisProcessingPage } from '@/pages/AnalysisProcessingPage';
 import { RecommendationsPage } from '@/pages/RecommendationsPage';
+import { AnalysisHistoryPage } from '@/pages/AnalysisHistoryPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AppLayout } from '@/components/layout/AppLayout';
 
@@ -75,20 +76,19 @@ export const App = () => {
                 }
             />
 
-            {/* Coming soon pages */}
+            {/* Analysis History */}
             <Route
                 path='/dashboard/history'
                 element={
                     <ProtectedRoute>
                         <AppLayout>
-                            <ComingSoonPage
-                                title='Analysis History'
-                                description='View your past analyses and recommendations here.'
-                            />
+                            <AnalysisHistoryPage />
                         </AppLayout>
                     </ProtectedRoute>
                 }
             />
+
+            {/* Coming soon pages */}
             <Route
                 path='/dashboard/profile'
                 element={

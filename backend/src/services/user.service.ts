@@ -1,5 +1,5 @@
 import prisma from '../client.ts';
-import { Prisma, Role, User } from '../generated/prisma/index.js';
+import { Prisma, User } from '../generated/prisma/index.js';
 import ApiError from '../utils/ApiError.ts';
 import { encryptPassword } from '../utils/encryption.ts';
 import httpStatus from 'http-status';
@@ -13,7 +13,7 @@ const createUser = async (
     email: string,
     password: string,
     name?: string,
-    role: Role = Role.USER,
+    role: string = 'USER',
     clientType?: string,
     companyName?: string,
     phone?: string,

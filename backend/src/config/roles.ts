@@ -1,7 +1,5 @@
-import { Role } from '../generated/prisma/index.js';
-
 const allRoles = {
-    [Role.USER]: [
+    USER: [
         'getStatementFormats',
         'uploadStatement',
         'getAnalysis',
@@ -9,7 +7,7 @@ const allRoles = {
         'getProducts',
         'manageRecommendations'
     ],
-    [Role.ADMIN]: [
+    ADMIN: [
         'getUsers',
         'manageUsers',
         'getStatementFormats',

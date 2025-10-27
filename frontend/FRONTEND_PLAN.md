@@ -132,7 +132,7 @@ User Journey: Landing → Login/Signup → Dashboard → Upload Statement → An
 **API Endpoints:**
 
 - `GET /api/dashboard/overview` - Dashboard data
-- `GET /api/analyses/recent` - Recent analyses
+- `GET /api/analysis/recent` - Recent analyses
 
 ### 5. Bank Statement Upload (`/dashboard/upload`)
 
@@ -238,8 +238,8 @@ User Journey: Landing → Login/Signup → Dashboard → Upload Statement → An
 
 **API Endpoints:**
 
-- `GET /api/analyses/history` - Analysis history
-- `GET /api/analyses/:id/export` - Export analysis
+- `GET /api/analysis/history` - Analysis history
+- `GET /api/analysis/:id/export` - Export analysis
 
 ### 9. User Profile (`/dashboard/profile`)
 

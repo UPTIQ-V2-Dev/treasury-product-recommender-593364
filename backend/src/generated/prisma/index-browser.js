@@ -230,18 +230,6 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-exports.Role = exports.$Enums.Role = {
-  USER: 'USER',
-  ADMIN: 'ADMIN'
-};
-
-exports.TokenType = exports.$Enums.TokenType = {
-  ACCESS: 'ACCESS',
-  REFRESH: 'REFRESH',
-  RESET_PASSWORD: 'RESET_PASSWORD',
-  VERIFY_EMAIL: 'VERIFY_EMAIL'
-};
-
 exports.AnalysisStatus = exports.$Enums.AnalysisStatus = {
   PENDING: 'PENDING',
   PROCESSING: 'PROCESSING',
